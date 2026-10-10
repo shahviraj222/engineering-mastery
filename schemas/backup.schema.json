@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Engineering Mastery progress backup v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "version",
+    "curriculumDatasetId",
+    "exportedAt",
+    "progress"
+  ],
+  "properties": {
+    "format": {
+      "const": "engineering-mastery-progress"
+    },
+    "version": {
+      "const": 1
+    },
+    "curriculumDatasetId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exportedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "progress": {
+      "$ref": "progress.schema.json"
+    }
+  }
+}

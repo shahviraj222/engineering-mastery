@@ -1,0 +1,90 @@
+{
+  "dataset_id": "python-first-engineering-mastery-2026",
+  "schema_version": "1.0.0",
+  "content_sha256": "23b40c45581d68b190368adf8c0fe7862a836dbb7db00c4857d870679b23308b",
+  "expected_counts": {
+    "disciplines": 10,
+    "tracks": 27,
+    "levels": 81,
+    "skills": 405,
+    "lab_steps": 243,
+    "assessments": 81,
+    "projects": 7,
+    "project_tasks": 28,
+    "resources": 37,
+    "weekly_sprint_items": 8,
+    "python_starter_days": 7
+  },
+  "per_discipline": [
+    {
+      "id": "cs",
+      "title": "01 · Computer Science Fundamentals",
+      "tracks": 4,
+      "levels": 12,
+      "skills": 60
+    },
+    {
+      "id": "python",
+      "title": "02 · Python Programming",
+      "tracks": 2,
+      "levels": 6,
+      "skills": 30
+    },
+    {
+      "id": "dsa",
+      "title": "03 · Data Structures and Algorithms",
+      "tracks": 3,
+      "levels": 9,
+      "skills": 45
+    },
+    {
+      "id": "db",
+      "title": "04 · Databases and Data Correctness",
+      "tracks": 2,
+      "levels": 6,
+      "skills": 30
+    },
+    {
+      "id": "software",
+      "title": "05 · Software Development and Architecture",
+      "tracks": 3,
+      "levels": 9,
+      "skills": 45
+    },
+    {
+      "id": "design",
+      "title": "06 · System Design",
+      "tracks": 3,
+      "levels": 9,
+      "skills": 45
+    },
+    {
+      "id": "security",
+      "title": "07 · Security Engineering",
+      "tracks": 2,
+      "levels": 6,
+      "skills": 30
+    },
+    {
+      "id": "prod",
+      "title": "08 · Production Engineering and Cloud",
+      "tracks": 3,
+      "levels": 9,
+      "skills": 45
+    },
+    {
+      "id": "ai",
+      "title": "09 · AI Engineering (Later Specialization)",
+      "tracks": 3,
+      "levels": 9,
+      "skills": 45
+    },
+    {
+      "id": "practice",
+      "title": "10 · Professional Engineering and Interviews",
+      "tracks": 2,
+      "levels": 6,
+      "skills": 30
+    }
+  ]
+}

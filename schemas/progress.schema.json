@@ -1,0 +1,383 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "updatedAt",
+    "profile",
+    "skills",
+    "labSteps",
+    "assessments",
+    "projects",
+    "projectTasks",
+    "evidence",
+    "dayChecks",
+    "weekChecks",
+    "customReviews"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "updatedAt": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "profile": {
+      "type": "object",
+      "properties": {
+        "preferredHoursPerWeek": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 168
+        },
+        "sprintStartDate": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "currentUnitId": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "theme": {
+          "enum": [
+            "system",
+            "light",
+            "dark"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "skills": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^(?!(__proto__|constructor|prototype)$)[A-Za-z0-9_-]+$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "not_started",
+              "learning",
+              "practiced",
+              "mastered"
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "reviewDue": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lastReviewedAt": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "labSteps": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^(?!(__proto__|constructor|prototype)$)[A-Za-z0-9_-]+$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "done",
+          "updatedAt"
+        ],
+        "properties": {
+          "done": {
+            "type": "boolean"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "assessments": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^(?!(__proto__|constructor|prototype)$)[A-Za-z0-9_-]+$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "not_started",
+              "attempted",
+              "passed",
+              "needs_review"
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "evidence": {
+            "type": "string",
+            "maxLength": 10000
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "projects": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^(?!(__proto__|constructor|prototype)$)[A-Za-z0-9_-]+$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "not_started",
+              "active",
+              "blocked",
+              "completed"
+            ]
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 10000
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "projectTasks": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^(?!(__proto__|constructor|prototype)$)[A-Za-z0-9_-]+$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "done",
+          "updatedAt"
+        ],
+        "properties": {
+          "done": {
+            "type": "boolean"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^(?!(__proto__|constructor|prototype)$)[A-Za-z0-9_-]+$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "updatedAt"
+        ],
+        "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "links": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://",
+              "maxLength": 2048
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "dayChecks": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^(?!(__proto__|constructor|prototype)$)[A-Za-z0-9_-]+$"
+      },
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    },
+    "weekChecks": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^(?!(__proto__|constructor|prototype)$)[A-Za-z0-9_-]+$"
+      },
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    },
+    "customReviews": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^(?!(__proto__|constructor|prototype)$)[A-Za-z0-9_-]+$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "format": "date"
+      }
+    },
+    "applications": {
+      "type": "object",
+      "maxProperties": 2000,
+      "propertyNames": {
+        "pattern": "^(?!(__proto__|constructor|prototype)$)[A-Za-z0-9_-]+$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "company",
+          "role",
+          "status",
+          "url",
+          "salary",
+          "contact",
+          "appliedDate",
+          "followUp",
+          "notes",
+          "updatedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "company": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "role": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "salary": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "contact": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "status": {
+            "enum": [
+              "saved",
+              "applied",
+              "screening",
+              "interview",
+              "offer",
+              "rejected",
+              "withdrawn"
+            ]
+          },
+          "appliedDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "followUp": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Engineering Mastery Tracker Local Progress v1"
+}
