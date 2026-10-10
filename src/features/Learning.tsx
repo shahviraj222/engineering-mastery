@@ -1,16 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
   Search,
-  BookOpen,
   FlaskConical,
   CheckCircle2,
   Target,
   Info,
   ChevronDown,
-  ExternalLink,
+  Code2,
+  NotebookPen,
+  Layers3,
+  BookmarkCheck,
 } from "lucide-react";
 import {
   data,
@@ -276,32 +278,102 @@ function UnitView({ id }: { id: string }) {
     (id) => !diagnoseUnitMastery(unitById[id], state).ready,
   );
   const at = u.track.levels.findIndex((x) => x.id === id);
+  const [section, setSection] = useState("skills");
+  const labDone = u.lab.steps.filter(
+    (step) => state.labSteps[step.id]?.done,
+  ).length;
+  const sectionIds = ["skills", "lab", "assessment", "notes"];
+  useEffect(() => {
+    const update = () => {
+      const visible = sectionIds.filter((key) => {
+        const element = document.getElementById(`unit-${key}`);
+        return element && element.getBoundingClientRect().top <= 175;
+      });
+      setSection(visible.at(-1) || "skills");
+    };
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, [id]);
+  const jumpTo = (key: string) => {
+    setSection(key);
+    const target = document.getElementById(`unit-${key}`);
+    target?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+      block: "start",
+    });
+    target?.focus({ preventScroll: true });
+  };
+  const checkpoints = [
+    {
+      id: "skills",
+      label: "Skills",
+      value: `${mastered}/${u.skills.length}`,
+      icon: Code2,
+      done: diagnostic.missingSkillIds.length === 0,
+    },
+    {
+      id: "lab",
+      label: "Lab",
+      value: `${labDone}/${u.lab.steps.length}`,
+      icon: FlaskConical,
+      done: diagnostic.missingLabStepIds.length === 0,
+    },
+    {
+      id: "assessment",
+      label: "Assessment",
+      value: diagnostic.missingAssessmentPass ? "To do" : "Passed",
+      icon: CheckCircle2,
+      done: !diagnostic.missingAssessmentPass,
+    },
+    {
+      id: "notes",
+      label: "Notes",
+      value: diagnostic.missingEvidence ? "Add proof" : "Recorded",
+      icon: NotebookPen,
+      done: !diagnostic.missingEvidence,
+    },
+  ];
   return (
-    <>
+    <div className="unit-workspace">
       <Link to={`/learn?subject=${u.discipline.id}`} className="back-link">
         <ArrowLeft size={16} />
         {disciplineLabels[u.discipline.id]}
       </Link>
-      <PageHeading
-        eyebrow={`${u.level} · ${u.level === "L1" ? "FOUNDATION" : u.level === "L2" ? "PROFESSIONAL" : "ADVANCED"}`}
-        title={u.track.title}
-        description={u.outcome}
-        action={
-          <button
-            className="button secondary"
-            onClick={() =>
-              mutate((s) => {
-                s.profile.currentUnitId = id;
-              })
-            }
-          >
-            <Target size={16} />
-            {state.profile.currentUnitId === id
-              ? "Current focus"
-              : "Set as my focus"}
-          </button>
-        }
-      />
+      <div className="unit-hero">
+        <div className="unit-hero-icon" aria-hidden="true">
+          <Code2 size={34} strokeWidth={1.6} />
+        </div>
+        <PageHeading
+          eyebrow={`${u.level} · ${u.level === "L1" ? "FOUNDATION" : u.level === "L2" ? "PROFESSIONAL" : "ADVANCED"}`}
+          title={u.track.title}
+          description={u.outcome}
+          action={
+            <button
+              className={`button secondary focus-button ${state.profile.currentUnitId === id ? "is-focused" : ""}`}
+              onClick={() =>
+                mutate((s) => {
+                  s.profile.currentUnitId = id;
+                })
+              }
+            >
+              {state.profile.currentUnitId === id ? (
+                <BookmarkCheck size={17} />
+              ) : (
+                <Target size={17} />
+              )}
+              {state.profile.currentUnitId === id
+                ? "Current focus"
+                : "Set as my focus"}
+            </button>
+          }
+        />
+        <div className="unit-hero-decoration" aria-hidden="true">
+          <span>{u.level}</span>
+          <Layers3 size={66} strokeWidth={0.8} />
+        </div>
+      </div>
       {u.discipline.priority === "later" && (
         <div className="notice">
           <Info size={17} />
@@ -311,7 +383,15 @@ function UnitView({ id }: { id: string }) {
       )}
       <div className={`mastery-banner ${diagnostic.ready ? "earned" : ""}`}>
         <div>
-          <CheckCircle2 size={22} />
+          <span
+            className={`mastery-symbol ${diagnostic.ready ? "complete" : ""}`}
+          >
+            {diagnostic.ready ? (
+              <CheckCircle2 size={22} />
+            ) : (
+              <Target size={22} />
+            )}
+          </span>
           <span>
             <strong>
               {diagnostic.ready
@@ -334,13 +414,15 @@ function UnitView({ id }: { id: string }) {
         <button
           className="button secondary small"
           onClick={() => setShowGate(!showGate)}
+          aria-expanded={showGate}
+          aria-controls="mastery-requirements"
         >
           {showGate ? "Hide requirements" : "Verify level"}
           <ChevronDown size={15} />
         </button>
       </div>
       {showGate && (
-        <section className="panel requirements">
+        <section className="panel requirements" id="mastery-requirements">
           <h3>
             {diagnostic.ready
               ? "All requirements recorded"
@@ -374,12 +456,37 @@ function UnitView({ id }: { id: string }) {
           )}
         </section>
       )}
+      <nav className="lesson-navigation" aria-label="Lesson sections">
+        {checkpoints.map((checkpoint) => (
+          <button
+            key={checkpoint.id}
+            onClick={() => jumpTo(checkpoint.id)}
+            aria-current={section === checkpoint.id ? "location" : undefined}
+            className={`${section === checkpoint.id ? "active" : ""} ${checkpoint.done ? "complete" : ""}`}
+          >
+            <checkpoint.icon size={17} />
+            <span>{checkpoint.label}</span>
+            <span className="checkpoint-value">
+              {checkpoint.done && <CheckCircle2 size={12} />} {checkpoint.value}
+            </span>
+          </button>
+        ))}
+      </nav>
       <div className="detail-layout">
         <div>
-          <section className="panel">
+          <section
+            className="panel skills-panel lesson-section"
+            id="unit-skills"
+            tabIndex={-1}
+          >
             <SectionTitle
-              title="01 / Build your understanding"
-              extra={<Badge>{u.skills.length} skills</Badge>}
+              title="Build your understanding"
+              extra={
+                <span className="section-marker">
+                  <Code2 size={16} />
+                  01 / SKILLS
+                </span>
+              }
             />
             <p className="muted">
               Learning → practiced → mastered. Choose the status that reflects
@@ -389,9 +496,16 @@ function UnitView({ id }: { id: string }) {
               {u.skills.map((skill, i) => {
                 const p = state.skills[skill.id];
                 return (
-                  <div className="skill-row" key={skill.id}>
+                  <div
+                    className={`skill-row skill-${p?.status || "not_started"}`}
+                    key={skill.id}
+                  >
                     <div className="skill-number">
-                      {String(i + 1).padStart(2, "0")}
+                      {p?.status === "mastered" ? (
+                        <CheckCircle2 size={17} />
+                      ) : (
+                        String(i + 1).padStart(2, "0")
+                      )}
                     </div>
                     <div className="skill-main">
                       <div className="skill-primary">
@@ -417,7 +531,11 @@ function UnitView({ id }: { id: string }) {
                         />
                       </div>
                       <details className="skill-more">
-                        <summary>Notes & review date</summary>
+                        <summary>
+                          <NotebookPen size={13} />
+                          Notes & review date
+                          <ChevronDown size={13} />
+                        </summary>
                         <label>
                           Skill notes
                           <textarea
@@ -469,10 +587,17 @@ function UnitView({ id }: { id: string }) {
               })}
             </div>
           </section>
-          <section className="panel lab-panel">
+          <section
+            className="panel lab-panel lesson-section"
+            id="unit-lab"
+            tabIndex={-1}
+          >
             <div className="section-title">
-              <h2>02 / Put it into practice</h2>
-              <FlaskConical size={20} />
+              <h2>Put it into practice</h2>
+              <span className="section-marker">
+                <FlaskConical size={16} />
+                02 / LAB
+              </span>
             </div>
             <h3>{u.lab.title}</h3>
             <div className="checks">
@@ -506,10 +631,19 @@ function UnitView({ id }: { id: string }) {
               <p>{u.lab.expected_evidence}</p>
             </div>
           </section>
-          <section className="panel assessment-panel">
+          <section
+            className="panel assessment-panel lesson-section"
+            id="unit-assessment"
+            tabIndex={-1}
+          >
             <SectionTitle
-              title="03 / Test your independence"
-              extra={<BookOpen size={20} />}
+              title="Test your independence"
+              extra={
+                <span className="section-marker">
+                  <CheckCircle2 size={16} />
+                  03 / ASSESSMENT
+                </span>
+              }
             />
             <h3>{u.assessment.challenge}</h3>
             <p className="muted">
@@ -579,7 +713,9 @@ function UnitView({ id }: { id: string }) {
               />
             </div>
           </section>
-          <Evidence id={u.id} />
+          <div id="unit-notes" className="lesson-section" tabIndex={-1}>
+            <Evidence id={u.id} />
+          </div>
         </div>
         <aside className="detail-rail">
           <section className="panel">
@@ -602,7 +738,10 @@ function UnitView({ id }: { id: string }) {
                 </Link>
               ))}
             </div>
-            <p className="muted">{u.learning_mode.replaceAll("_", " ")}</p>
+            <div className="learning-mode">
+              <FlaskConical size={14} />
+              {u.learning_mode.replaceAll("_", " ")}
+            </div>
           </section>
           <section className="panel">
             <h3>Helpful foundations</h3>
@@ -654,6 +793,6 @@ function UnitView({ id }: { id: string }) {
           </Link>
         )}
       </div>
-    </>
+    </div>
   );
 }

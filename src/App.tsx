@@ -21,9 +21,10 @@ import {
   X,
   ArrowUpRight,
   ShieldCheck,
-  Command,
   ChevronRight,
   Download,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { useStore } from "./storage/store";
 import { reviewItems } from "./domain/progress";
@@ -43,7 +44,8 @@ const nav = [
   { to: "/resources", name: "Resource library", icon: Library },
 ];
 export default function App() {
-  const { state, error, locked, recover, exportBackup, retry } = useStore();
+  const { state, mutate, error, locked, recover, exportBackup, retry } =
+    useStore();
   const [menu, setMenu] = useState(false);
   const [q, setQ] = useState("");
   const [mobile, setMobile] = useState(
@@ -51,6 +53,17 @@ export default function App() {
   );
   const navRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLButtonElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const shortcut = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", shortcut);
+    return () => window.removeEventListener("keydown", shortcut);
+  }, []);
   const location = useLocation();
   const navigate = useNavigate();
   const due = reviewItems(state).filter((r) => r.bucket === "due").length;
@@ -233,15 +246,35 @@ export default function App() {
           >
             <Search size={16} />
             <input
+              ref={searchRef}
               aria-label="Search the roadmap"
+              title="Search the roadmap (⌘K / Ctrl+K)"
               placeholder="Find a skill, topic, or unit…"
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
             <button type="submit" aria-label="Search">
-              <Command size={13} />
+              <span className="search-submit">
+                <ArrowUpRight size={14} />
+              </span>
             </button>
           </form>
+          <button
+            className="theme-toggle icon-button"
+            aria-label="Toggle light and dark theme"
+            title="Toggle light and dark theme"
+            onClick={() =>
+              mutate((s) => {
+                s.profile.theme =
+                  document.documentElement.dataset.theme === "dark"
+                    ? "light"
+                    : "dark";
+              })
+            }
+          >
+            <Sun size={18} className="light-theme-icon" />
+            <Moon size={18} className="dark-theme-icon" />
+          </button>
           <Link
             to="/settings"
             className="top-avatar"

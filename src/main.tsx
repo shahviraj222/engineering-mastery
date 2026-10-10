@@ -4,6 +4,7 @@ import { HashRouter } from "react-router-dom";
 import { StoreProvider } from "./storage/store";
 import App from "./App";
 import "./styles/app.css";
+import "./styles/refinements.css";
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <HashRouter>
